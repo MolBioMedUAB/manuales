@@ -1,0 +1,35 @@
+\babel@toc {spanish}{}
+\contentsline {chapter}{\numberline {1}Docking}{5}{chapter.1}
+\contentsline {section}{\numberline {1.1}Preparaci\IeC {\'o}n de los ficheros}{6}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}La prote\IeC {\'\i }na}{6}{subsection.1.1.1}
+\contentsline {subsubsection}{\numberline {1.1.1.1}Limpieza de la prote\IeC {\'\i }na}{6}{subsubsection.1.1.1.1}
+\contentsline {subsection}{\numberline {1.1.2}Protonaci\IeC {\'o}n de la prote\IeC {\'\i }na sin depender del pH}{6}{subsection.1.1.2}
+\contentsline {subsection}{\numberline {1.1.3}El ligando}{6}{subsection.1.1.3}
+\contentsline {section}{\numberline {1.2}AutoDock Vina}{7}{section.1.2}
+\contentsline {chapter}{\numberline {2}Din\IeC {\'a}mica Molecular (MD)}{9}{chapter.2}
+\contentsline {section}{\numberline {2.1}Preparaci\IeC {\'o}n de los ficheros}{10}{section.2.1}
+\contentsline {subsection}{\numberline {2.1.1}Preparaci\IeC {\'o}n del \textit {pdb} de la prote\IeC {\'\i }na}{10}{subsection.2.1.1}
+\contentsline {subsubsection}{\numberline {2.1.1.1}Preparaci\IeC {\'o}n previa del \textit {pdb}}{10}{subsubsection.2.1.1.1}
+\contentsline {subsubsection}{\numberline {2.1.1.2}Estado de protonaci\IeC {\'o}n de la prote\IeC {\'\i }na}{10}{subsubsection.2.1.1.2}
+\contentsline {subsubsection}{\numberline {2.1.1.3}Formatado del \textit {pdb}}{10}{subsubsection.2.1.1.3}
+\contentsline {subsection}{\numberline {2.1.2}Preparaci\IeC {\'o}n del centro activo}{11}{subsection.2.1.2}
+\contentsline {subsubsection}{\numberline {2.1.2.1}Creaci\IeC {\'o}n de los ficheros para cada residuo}{11}{subsubsection.2.1.2.1}
+\contentsline {subsubsection}{\numberline {2.1.2.2}Parametrizaci\IeC {\'o}n del centro activo}{12}{subsubsection.2.1.2.2}
+\contentsline {subsection}{\numberline {2.1.3}Creaci\IeC {\'o}n del fichero de par\IeC {\'a}metros y topolog\IeC {\'\i }a y de las coordenadas de entrada y solvataci\IeC {\'o}n y neutralizaci\IeC {\'o}n del sistema}{12}{subsection.2.1.3}
+\contentsline {subsubsection}{\numberline {2.1.3.1}Modificaci\IeC {\'o}n del \texttt {.pdb}}{12}{subsubsection.2.1.3.1}
+\contentsline {subsubsection}{\numberline {2.1.3.2}Creaci\IeC {\'o}n del \textit {script} de \textit {tLEaP}}{12}{subsubsection.2.1.3.2}
+\contentsline {section}{\numberline {2.2}C\IeC {\'a}lculo de la din\IeC {\'a}mica}{15}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Como enviar el c\IeC {\'a}lculo}{15}{subsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.1.1}Los programas de c\IeC {\'a}lculo: \texttt {pmemd.cuda} y \texttt {sander}}{15}{subsubsection.2.2.1.1}
+\contentsline {subsubsection}{\numberline {2.2.1.2}Enviar el c\IeC {\'a}lculo a \textit {Slar}}{16}{subsubsection.2.2.1.2}
+\contentsline {subsubsection}{\numberline {2.2.1.3}Como enviar el c\IeC {\'a}lculo en local}{17}{subsubsection.2.2.1.3}
+\contentsline {subsection}{\numberline {2.2.2}Creaci\IeC {\'o}n de los archivos de configuraci\IeC {\'o}n}{17}{subsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.2.1}C\IeC {\'a}lculo de minimizaci\IeC {\'o}n MM}{17}{subsubsection.2.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2.2}C\IeC {\'a}lculo de \textit {heating}}{18}{subsubsection.2.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.2.3}C\IeC {\'a}lculo de equilibraci\IeC {\'o}n de la densidad o equilibraci\IeC {\'o}n NPT}{18}{subsubsection.2.2.2.3}
+\contentsline {subsubsection}{\numberline {2.2.2.4}C\IeC {\'a}lculo de la equilibraci\IeC {\'o}n}{18}{subsubsection.2.2.2.4}
+\contentsline {subsubsection}{\numberline {2.2.2.5}C\IeC {\'a}lculo de la producci\IeC {\'o}n}{19}{subsubsection.2.2.2.5}
+\contentsline {section}{\numberline {2.3}An\IeC {\'a}lisis de los resultados}{19}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}\texttt {Cpptraj}}{19}{subsection.2.3.1}
+\contentsline {subsubsection}{\numberline {2.3.1.1}Unificaci\IeC {\'o}n de las trayectorias parciales}{19}{subsubsection.2.3.1.1}
+\contentsline {subsubsection}{\numberline {2.3.1.2}C\IeC {\'a}lculo del RMSD}{20}{subsubsection.2.3.1.2}

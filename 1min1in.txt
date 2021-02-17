@@ -1,0 +1,17 @@
+Minimization with restrains except for water and ions
+
+&cntrl
+    imin=1,
+    maxcyc=5000,
+    ncyc=15000,
+    ntmin=1,
+    ntpr=1000,
+    cut=10.0,
+    irest=0,
+    ntx=1,
+    ntb=1,
+    ntr=1,
+    iwrap=1,
+    restraintmask=':1-555',
+    restraint_wt=5.0
+&end

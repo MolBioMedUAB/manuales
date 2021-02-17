@@ -1,0 +1,32 @@
+%Capítulos, secciones y subsecciones:
+    \chapter{título capítulo}
+    \section{título sección}
+    \subsection{}
+    \subsubsection{}
+
+%Salto de línea y página
+    \par -> con indentación en la nueva línea
+    \\   -> sin indentación
+    \newpage -> salto de página
+    
+%Formatado de texto
+    \textit{} -> cursiva (para palabras en inglés)
+    \texttt{} -> máquina de escribir (para comandos o código empleado)
+    \textbf{} -> negrita
+    \emph{}   -> emfásis según el formato en el que se escribe (para emfatizar advertencias, por ejemplo)
+    \textsf{} -> sin serifas (para explicar lo que hemos hecho en nuestro caso)
+
+%Inclusión de otros ficheros
+    \input{nombre_archivo.tex} -> sirve para añadir partes del documento escritas en otros archivos, especialmente para  
+
+
+
+%Adjuntar archivos
+    1. Cargar el archivo en \textit{sharelatex}
+    2.      Con texto:  \textattachfile{nombre_archivo.extensión}{texto}
+    2bis.   Con icono:  \attachfile{nombre_archivo.extensión}
+
+
+%Ajustar párrafo con margen izquierdo:
+    \begin{adjustwidth}{1.0cm}{}
+    \end{adjustwidth}

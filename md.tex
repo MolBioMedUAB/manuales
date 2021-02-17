@@ -1,0 +1,295 @@
+\chapter[Dinámica Molecular (MD)]{Dinámica Molecular (MD) con el \textit{software} \textit{AMBER} 16\footnote{\href{http://ambermd.org/}{AMBER Software}}}
+\newpage
+
+
+
+\section{Preparación de los ficheros}
+	Para poder realizar una dinámica se deben preparar, al menos, la proteína a estudiar. Esta proteína debe contener el ligando si lo que se quiere estudiar es como se coloca ésta en el centro activo. Para ello debemos conocer primero cómo se coloca realizando, por ejemplo, cálculos de \textit{docking} (sección \ref{preparacion_proteina}). \par
+	Una vez se conocen la proteína, el ligando y como éste se coloca dentro de la proteína, ya se puede realizar el cálculo de dinámica. Para ello deberemos parametrizar el sistema y, a su vez, conocer las coordenadas. Lo haremos mediante la construcción y preparación de los archivos necesarios gracias a los paquetes \textit{pdb4amber} y \textit{leap (tleap)}, que forman parte de \textit{AmberTools16}. \par
+	Para trabajar con \textit{AmberTools16} podemos o bien trabajar en local o bien en \textit{Slar}. Si trabajamos en local bastará con llamar al programa desde el terminal, mientras que si trabajamos en \textit{Slar} deberemos cargar el módulo previamente mediante el comando \texttt{module load interactive/cuda/8.0/amber/16}.
+	
+	\subsection{Preparación del \textit{pdb} de la proteína}
+		Para que un \textit{pdb} sea convenientemente entendido por \textit{leap} y, por extensión, por \textit{AMBER}, se debe formatar corrrectamente. Para simplificar este formatado usaremos el software \textit{pdb4amber}.
+		
+		\subsubsection{Preparación previa del \textit{pdb}}
+			En caso que no se haya realizado un cálculo de \textit{docking} y, por tanto, se haya eliminado todo lo que no es proteína en sí, se tiene que hacer como paso previo al formatado. Para ello se pueden seguir los pasos explicados en la sección \ref{preparacion_proteina}. Esta misma preparación se puede llevar a cabo en algunos casos con el propio \textit{pdb4amber}, pero no en sistemas con aguas activas.
+			
+			\textsf{En el caso del estudio del mecanismo de la pig12LOX, la proteína se protonó mediante \textit{PropKa} con el \textit{force field AMBER}, así como se conservó únicamente el agua coordinada al \ce{Fe^2+}, de modo que no se requería de ninguna preparación del \textit{pdb}.}
+			
+		\subsubsection{Estado de protonación de la proteína}
+			Hay algunos residuos que, por su naturaleza química, pueden ser protonados o desprotonados según el pH del medio en el que se encuentren. Una estimación de su estado se puede calcular utilizando un \textit{software} como \textit{PropKa}. Una vez se conocen los estados de protonación, y para que \textit{leap} y \textit{AMBER} los interprete correctamente, se deben renombrar aquellos residuos que tienen un estado protonado distinto al estándard según el convenio especificado en el manual del \textit{software} (Tabla \ref{tab:convenio_nomenclatura_amber}).
+            \begin{table}[h]
+                \centering
+                \caption{Convenio de nomenclatura de los residuos protonables en \textit{AMBER}}
+                \label{tab:convenio_nomenclatura_amber}
+                \begin{tabular}{l|l|l}
+                    \textbf{Residuo}              		& \textbf{Nombre}       & \textbf{Nombre según}		\\ 
+                    \                                	&\textbf{estándard}     & \textbf{el convenio}      \\
+                    \hline
+                    Histidina-${\delta}$            	& HIS                   & HID                       \\
+                    Histidina-${\epsilon}$         		& HIS                   & HIE o HIS                 \\
+                    Histidina-${\delta},{\epsilon}$ 	& HIS                   & HIP                       \\
+                    Asparagina protonada              	& ASP                   & ASH                       \\
+                    Glutamina protonada                 & GLU                   & GLH                       \\
+                    Lisina desprotonada                 & LYS                   & LYN                                
+                \end{tabular}
+            \end{table}
+			
+			
+		\subsubsection{Formatado del \textit{pdb}}
+			Una vez tenemos la proteína limpia de solvente e iones no activos, ya podemos formatar el \textit{pdb}. Para ello se ha de ejecutar el programa \textit{pdb4amber}, introduciendo los archivos de entrada y salida, así como también las opciones necesarias:
+			
+			\begin{center}
+			    \texttt{pdb4amber -i nombre-archivo-in.pdb -o nombre-archivo-out.pdb [opciones]}
+			\end{center} 
+			\ \\ 
+			\ \\ 
+			\ \\
+			Algunas de las opciones son:
+			\begin{itemize}
+				\item \texttt{-d}; \texttt{\dg dry}: Elimina todo el solvente si no se ha eliminado antes. \emph{Advertencia: si hay aguas en el centro activo que son cruciales para la reactividad, éstas también serán eliminadas.}
+				\item \texttt{-p}; \texttt{\dg prot}: eliminará todo aquello que no es proteína, como iones o solvente, en el fichero de salida. Por defecto, aunque no esté activada la opción, guarda un archivo llamado \textit{nonprot} en el que se incluye todo lo que no es proteína. \emph{Es recomendable activar esta opción si en la posterior parametrización se tiene que parametrizar externamente zonas del centro activo que no son proteína, como iones o aguas}\footnote{En el caso de las LOX o COX, dado que incluyen \ce{Fe^2+} y \ce{OH-} en el centro activo es conveniente activarla ya que el \textit{force field} no incluye parámetros para estos grupos químicos y, en consecuencia, el centro activo se tiene que parametrizar externamente}.
+				\item \texttt{-y}; \texttt{\dg nohyd}: elimina todos los hidrógenos presentes en el \textit{pdb} para añadirlos posteriormente mediante \textit{leap}. Gracias a esta opción se evitan problemas con los tipos de H y sus nomenclaturas en \textit{tleap}.
+				\item \texttt{-h}; \texttt{\dg help}: ayuda dentro del programa, informará de las distintas opciones que se pueden usar.
+			\end{itemize}
+			
+			\textsf{En el caso del estudio de la pig12LOX, la única opción activada es \texttt{-p}, ya que no se requería eliminar los hidrógenos introducidos por \textit{PropKa}, gracias a que el \textit{force field} utilizado para ello fue \textit{AMBER}, y el solvente no necesario.}
+
+    \subsection{Preparación del centro activo}
+        En el caso en el que el centro activo de la proteína contenga átomos que no son comunes en las proteínas y que, por tanto, no están parametrizados en el \textit{force field} de \textit{AMBER}, se tiene que generar los parámetros de esa zona de la proteína con el \textit{software MCPB}. Tanto para obtener nuevos parámetros como para obtener posteriormente el fichero de topología y parámetros, el \texttt{.prmtop}, se debe generar un \texttt{.mol2} para cada residuo del centro activo.\par
+        
+        
+        \subsubsection{Creación de los ficheros para cada residuo}
+            Para generar los ficheros de cada residuo del centro activo, que deben ser \texttt{.mol2}, ya que se requieren las cargas, se puede usar un software como \texttt{UCSF Chimera}, con el cual se elimina todo lo que no sea residuo, para luego guardarlo. Esto debe hacerse para cada uno de los residuos del centro activo.\par
+            
+            En caso de calcular los parámetros con \textit{MCPB}, se obtendrán los \texttt{.mol2} de cada residuo con la carga correspondiente.\par
+            
+            \textsf{En el caso del estudio de la pig12LOX, dado que los parámetros del centro activo ya estaban creados anteriormente, se guardaron los \texttt{.mol2} de cada residuo para luego copiar las cargas correspondientes en la última columna del fichero. No se pudieron aprovechar los \texttt{.mol2} creados para crear los parámetros dado que éstos estaban referenciados a un centro de coordenadas distinto.}\par
+            
+            Una vez obtenidos los \texttt{.mol2} finales, se tiene que cambiar la penúltima columna, donde aparece el nombre del residuo, por el nombre que tendrá dentro del \textit{script} para generar el \texttt{.prmtop}, como veremos más adelante. La última sección del archivo debe contener el tipo de residuo que es y no el nombre que se le dará en el \textit{script} según el convenio de \textit{AMBER} (tabla \ref{tab:convenio_nomenclatura_amber}).
+        
+        \subsubsection{Parametrización del centro activo}
+            \textbf{ñqhbksdgbdasvaòsdgvbas}
+            
+    \subsection{Creación del fichero de parámetros y topología y de las coordenadas de entrada y solvatación y neutralización del sistema}\label{sec:prmtopyinpcrd}
+        Una vez creadas las estructuras de cada residuo de forma independiente y con las cargas y nombres correspondientes, así como los parámetros para cada uno de ellos (fichero \texttt{.frcmod}), se tiene que modificar el \texttt{.pdb} de la proteína completa (con el centro activo y el ligando) y crear el \textit{script}.\par
+        Para crear el fichero de parámetros y topología, así como el de las coordenadas iniciales, se usará el \textit{software} \textit{LEaP} en su versión \textit{prompt} (\textit{tLEaP}). \par
+        Además, \textit{LEaP} permite solvatar y neutralizar el sistema en el mismo \textit{script}, de modo que se pueden crear los parámetros y la topologia del sistema tanto para la proteína aislada como para la proteína solvatada.
+        
+        \subsubsection{Modificación del \texttt{.pdb}}
+            Para que \textit{LEaP} sepa donde se encuentra cada residuo del centro activo en la secuencia peptídica de la proteína, se tiene que tener un \texttt{.pdb} que incluya la proteína, el metal si existe, el agua reactiva si existe y el ligando con sus correspondientes números de residuo y de átomo. Una vez añadidos, se tiene que cambiar los nombres de los residuos por los nombres que éstos tendrán en el \textit{script}, es decir, por los mismos que se han cambiado en los \texttt{.mol2} del centro activo. De éste modo, \textit{LEaP} será capaz de reconocer qué residuo de la proteína corresponde con qué \texttt{.mol2} y, por tanto, sabrá en que átomos deberá añadir los parámetros calculados con \textit{MCPB}.
+            
+        \subsubsection{Creación del \textit{script} de \textit{tLEaP}}
+            El \textit{script} necesario para crear las coordenadas iniciales y los paramétros y topología es una simple lista de comandos que se le tienen que dar a \textit{tLEaP}, de modo que puede no crearse y, en su lugar, introducirlos manualmente. Este archivo es un archivo de texto plano con la extensión deseada, aunque es común usar la extensión \texttt{.in}.\par
+            \textsf{Un ejemplo de \textit{script}, el utilitzado para el estudio de la pig12LOX con DHA, es el fichero siguiente\textattachfile{leapscript.txt}{\ (archivo)}:}
+            \begin{adjustwidth}{1.0cm}{}
+            \texttt{source leaprc.protein.ff14SB\\
+                source leaprc.gaff\\
+                addAtomTypes \{\\
+	            \hspace{0.5cm}    \{ ``M1`` ``Fe`` ``sp3`` \}\\
+                \hspace{0.5cm}    \{ ``Y1`` ``N``  ``sp3`` \}\\ 
+                \hspace{0.5cm}    \{ ``Y2`` ``N``  ``sp3`` \}\\
+                \hspace{0.5cm}    \{ ``Y3`` ``N``  ``sp3`` \}\\
+                \hspace{0.5cm}    \{ ``Y4`` ``N``  ``sp3`` \}\\
+                \hspace{0.5cm}    \{ ``Y5`` ``O``  ``sp3`` \}\\
+                \hspace{0.5cm}    \{ ``Y6`` ``O``  ``sp3`` \}\\
+                \}\\
+                addAtomTypes\{\\
+                \hspace{0.5cm}    \{ ``o``  ``O``  ``sp3`` \}\\
+                \hspace{0.5cm}    \{ ``c2`` ``C``  ``sp2`` \}\\
+                \hspace{0.5cm}    \{ ``c3`` ``C``  ``sp3`` \}\\
+                \hspace{0.5cm}    \{ ``ha`` ``H``  ``sp3`` \}\\
+                \hspace{0.5cm}    \{ ``hb`` ``H``  ``sp3`` \}\\
+                \}\\
+                HD1 = loadmol2 HID250.mol2\\
+                HD2 = loadmol2 HID255.mol2\\
+                HD3 = loadmol2 HID430.mol2\\
+                HE1 = loadmol2 HIE434.mol2\\
+                IE1 = loadmol2 ILE552.mol2\\
+                OH1 = loadmol2 OH.mol2\\
+                FE2 = loadmol2 FE2.mol2\\
+                DHA = loadmol2 DHA.mol2\\
+                loadAmberParams OH.frcmod\\
+                loadAmberParams frcmod.ionsjc\_tip3p\\
+                loadAmberParams centro\_activo.frcmod\\
+                loadAmberParams ligando.frcmod \\
+                prot = loadPdb proteina\_completa.pdb\\
+                bond prot.250.NE2 prot.554.FE\\
+                bond prot.255.NE2 prot.554.FE\\
+                bond prot.430.NE2 prot.554.FE\\
+                bond prot.434.ND1 prot.554.FE\\
+                bond prot.552.OXT prot.554.FE\\
+                bond prot.553.O1  prot.554.FE\\
+                bond prot.249.C   prot.250.N\\
+                bond prot.250.C   prot.251.N\\
+                bond prot.254.C   prot.255.N\\
+                bond prot.255.C   prot.256.N\\
+                bond prot.429.C   prot.430.N\\
+                bond prot.430.C   prot.431.N\\
+                bond prot.433.C   prot.434.N\\
+                bond prot.434.C   prot.435.N\\
+                bond prot.551.C   prot.552.N\\ 
+                savePdb prot proteina\_seca.pdb\\
+                saveAmberParm prot proteina\_seca.prmtop proteina\_seca.inpcrd\\
+                source leaprc.water.tip3p\\
+                solvateBox prot TIP3PBOX 10.0\\
+                addIons prot Na+ 0 \\
+                addIons prot Cl- 0\\
+                savePdb prot proteina\_solvatada.pdb\\
+                saveAmberParm prot proteina\_solvatada.prmtop proteina\_solvatada.inpcrd\\
+                quit\\
+            }\end{adjustwidth}
+        
+            \noindent Como se puede observar en el \textit{script}, aparecen varios tipos de comandos, que se describen a continuación:
+            \begin{itemize}
+                \item   \texttt{source} : cargan un \textit{force field} ya integrado en \textit{AmberTools} como el de la proteína o el de las aguas.
+                
+                \item   \texttt{addAtomTypes} : se utiliza para definir nuevos tipos de átomo y su hibridación, aunque no siempre se obecede. Se requiere definirlos ya que son los tipos de átomos definidos en los \texttt{.frcmod} de cada residuo del centro activo. La sintaxis de las definiciones és:
+                    \texttt{\flushleft{ $\quad$addAtomTypes\{ \\ $\quad \qquad$\{ `` nuevo tipo `` `` elemento `` `` hibridación `` \} \\ $\quad$\}}}
+                    
+                \item   \texttt{loadMol2} : cargan un fichero \texttt{.mol2} presente en la carpeta en la que se trabaja. Estan asociados a una variable, que corresponde al nombre que se le ha dado al residuo del centro activo en el correspondiente \texttt{.mol2} y en el \texttt{.pdb}.
+                
+                \item   \texttt{loadPdb} : cargan un fichero \texttt{.pdb} presente en la carpeta y le asocia una variable ya que se modificará en próximos comandos.
+                
+                \item   \texttt{loadAmberParams} : carga los ficheros \texttt{.frcmod} generados con \textit{MCPB}.
+                
+                \item   \texttt{bond} : define un enlace entre un átomo de un residuo de la proteína (del \texttt{.pdb} cargado) con el indicado, de modo que, dado que los residuos del centro activo estan asociados al \texttt{.mol2} del residuo, genera los enlaces entre los residuos presentes en el \texttt{.pdb} y los parametrizados externamente (los que provienen del \texttt{.mol2}). Su sintaxis es:
+                    \begin{center}
+                        \texttt{bond variable\_pdb\_cargado.numero\_primer\_atomo.nombre\_primer\_atomo variable\_pdb\_cargado.numero\_segundo\_atomo.nombre\_segundo\_atomo}
+                    \end{center}
+                    
+                \item   \texttt{savePdb} : guarda un \texttt{.pdb} con las modificaciones hechas hasta el momento asociadas al \texttt{.pdb} cargado a través de la variable.
+                
+                \item   \texttt{saveAmberParm} : guarda las coordenadas iniciales (\texttt{.inpcrd}) y la topología y parámetros (\texttt{.prmtop}) con las modificaciones hechas hasta el momento asociadas al \texttt{.pdb} cargado asociado a la proteina
+                
+                \item \texttt{solvateBox} : añade una caja de aguas a la proteína. Su sintaxis es:
+                    \begin{center}
+                        \texttt{solvateBox variable\_proteina tipo\_aguas distancia\_desde\_último\_átomo}
+                    \end{center}
+                    
+                \item \texttt{addIons} : añade iones según se especifique. Si se indica un 0, se añadirán iones hasta compensar la carga. Si se indica otro número, en cambio, se añadirán tantos iones como se indique. Su sintaxis es:
+                    \begin{center}
+                        \texttt{addIons variable\_proteina tipo\_ion 0\_o\_número\_específico}
+                    \end{center}
+                    
+                \item \texttt{quit} : salir del programa.
+            \end{itemize}
+            
+            Una vez corrido el \textit{script} se van a generar tres archivos para la proteína seca y otros tres para la proteína solvatada: el \texttt{.pdb}, las coordenadas de entrada (el \texttt{.inpcrd}) y la topología y los parámetros (el \texttt{.prmtop}).
+            
+            
+\section{Cálculo de la dinámica}
+    Generalmente, una dinámica consta de 5 etapas: la minimización, el calentamiento (o \textit{heating}), la equilibración de la densidad o equilibración NPT, la equilibración NVT y la producción. Cada una de estas etapas, dado que se realizan cálculos distintos excepto en el caso de la equilibración NVT y la producción, requieren de una configuración distinta y, por tanto, de un \textit{script} distinto.\par
+    
+    \subsection{Como enviar el cálculo}
+        El cálculo se puede llevar a cabo de dos formas distintas: se puede correr en local si el ordenador tiene una tarjeta gráfica (GPU) o bien se puede enviar a \textit{Slar}. 
+        
+        \subsubsection{Los programas de cálculo: \texttt{pmemd.cuda} y \texttt{sander}}
+            Dentro del paquete AMBER existen dos programas de cálculo: \texttt{pmemd.cuda}, que está preparado para cálculos paralelos en GPUs y que es el que se usará en este manual, y \texttt{sander}, que está preparado para llevar a cabo los cálculos en CPUs.\par
+            El uso de ambos programas es prácticamente idéntico. Se les llama desde el Terminal mediante un comando como el siguiente:
+            
+                \texttt{pmemd.cuda -O -i input.in -o output.out -p topology.prmtop -c coordinates.inpcrd}\par
+                \texttt{\indent -ref coordinates.inpcrd -r restart.rst -inf information.mdinfo -x dynamics.nc  }
+            
+            Como se puede observar en el comando, se activan 8 opciones, cada una de ellas correspondiente a un fichero de entrada o de salida:
+            \begin{itemize}
+                \item \texttt{-i input.in}: corresponde al fichero de configuración del cálculo.
+                \item \texttt{-o output.out}: corresponde al fichero resumen de salida, donde aparecerán datos macroscópicos del cálculo como la energía cinética, la potencial, la total, la temperatura...
+                \item \texttt{-p topology.prmtop}: corresponde al fichero de topología y parámetros generado en la sección \ref{sec:prmtopyinpcrd}.
+                \item \texttt{-c coordinates.inpcrd}: corresponde al fichero de coordenadas iniciales generado en la sección \ref{sec:prmtopyinpcrd}. En el caso de no tratarse de un cálculo inicial, es decir, de un cálculo que es la continuación de uno previo, en lugar del \texttt{.inpcrd} se tiene que usar el \texttt{.rst}, que se genera como resultado de un cálculo.
+                \item \texttt{-ref coordinates.inpcrd}: corresponde a un fichero con las coordenadas iniciales del cálculo, tanto si son iniciales absolutas como si provienen de un cálculo anterior, que servirá como referencia a lo largo del cálculo. No es necesario incluir esta opción pero si no se incluye puede dar error por falta de referncias.
+                \item \texttt{-r restart.rst}: corresponde a las coordenadas del último \textit{step} de la dinámica. Servirá para poder lanzar dinámicas que se basen en esta o para enlazar fragmentos de la dinámica.
+                \item \texttt{-inf information.mdinfo}: corresponde a un fichero resumen con la información sobre el tiempo total de cálculo y otros datos macroscópicos de la dinámica.
+                \item \texttt{-x dynamics.nc}: corresponde a los datos de posición y velocidad para cada \textit{frame} de la dinámica. Por defecto se guarda en formato binario para reducir el tamaño del archivo. 
+            \end{itemize}
+            Si se tiene que calcular una dinámica relativamente larga es conveniente fraccionar la dinámica en dinámicas de, como máximo, 5~$ns$. Para ello se genera un único fichero de configuración que calcule 5~$ns$, por ejemplo, y en el \textit{script} de envío del cálculo se añaden tantos comandos que activen \textit{pmed.cuda} como sean necesarios hasta completar el tiempo de dinámica requerido con las mismas opciones a excepción de las coordenadas y la referencia, que deben cambiarse por el \textit{restart} del cálculo anterior y los ficheros de salida (\texttt{.out}, \texttt{.rst}, \texttt{.mdinfo} y \texttt{.nc}), a los cuales se les debe cambiar el nombre para no sobreescribirlos. Partir los cálculos en pequeñas dinámicas puede ser muy útil en el caso en el que uno de ellos de resultados incoherentes o erróneos, ya que se podría aprovechar los cálculos anteriores y reiniciar la dinámica en un punto medio y, dado que es un cálculo estocástico, el cálculo puede seguir evitando estos resultados incoherentes. También se pueden utilizar archivos de configuración (los \texttt{.in}) distintos dentro de un mismo tipo de cálculo si se desean especificaciones distintas como pueden ser restricciones de movimiento de partes del sistema.\par
+        
+        \subsubsection{Enviar el cálculo a \textit{Slar}}
+            Si enviamos el cálculo a \textit{Slar} deberemos crear un \textit{script batch} para enviarlo. A continuación se muestra un ejemplo general\textattachfile{script_MD.sh}{\ (archivo)}:\ \\
+            \begin{adjustwidth}{1.0cm}{}
+            \texttt{\#!/bin/bash -l                                     \\
+                \#SBATCH -{}-job-name=AMBER                         \\
+                \#SBATCH -{}-partition=gorn                         \\
+                \#SBATCH -{}-nodes=1                                \\
+                \#SBATCH -{}-ntasks-per-node=1                      \\
+                \#SBATCH -{}-output=AMBER.o\%j                      \\
+                \#SBATCH -{}-error=AMBER.e\%j                       \\
+                \#SBATCH -{}-gres=gpu:1                             \\
+                \#SBATCH -{}-mail-type=ALL                          \\
+                \#SBATCH -{}-mail-user=usuario@klingon.uab.cat      \\
+                                                                    \\
+                \#\#\# MODULES \#\#\#                               \\
+                module load gcc/4.8.5/cuda/8.0/amber/16             \\
+                                                                    \\
+                \#\#\# ENVIRONMENT \#\#\#                           \\
+                . /QFcomm/environment.bash                          \\
+                                                                    \\
+                \#\#\# EXECUTION \#\#\#                             \\
+                pmemd.cuda -O -i input.in -o output.out -p topology.prmtop -c coordinates.inpcrd \\
+                    \indent -ref coordinates.inpcrd -r restart.rst -inf information.mdinfo -x dynamics.nc  \\
+                                                                    \\
+                \#\#\# RESULTS \#\#\#                               \\
+                cp -rp \$SWAP\_DIR \$SLURM\_SUBMIT\_DIR/\$SLURM\_JOB\_ID    \\
+            }\end{adjustwidth}
+                
+            En la primera sección del \textit{script} es donde aparece la información sobre el cálculo: el nombre del cálculo, de los ficheros de error y \textit{output} (no los resultados), el numero de nodos CPU (que será siempre 1 ya que no se calcula en CPU sino que se calcula en GPU) y la dirección de \textit{e-mail} donde se desea recibir los correos con información sobre el cálculo.\par
+            En la segunda sección (\texttt{\#\#\# MODULES \#\#\#}) es donde se indica qué módulos cargar, es decir, que programas se van a utilizar. En este caso se tiene que cargar \textit{AMBER16} sobre el \textit{software} de paralelización en GPU \textit{CUDA}. Se puede consultar la lista de módulos disponibles en \textit{Slar} mediante el comando \texttt{md av} o \texttt{module avail}.\par
+            En la tercera sección (\texttt{\#\#\# ENVIRONMENT \#\#\#}) es donde se indica que la carpeta de trabajo es desde la que se envia el cálculo.\par
+            En la cuarta sección (\texttt{\#\#\# EXECUTION \#\#\#}) es donde se inicia el programa de cálculo de dinámica. 
+            En la última sección (\texttt{\#\#\# RESULTS \#\#\#}) se copian los archivos presentes en la carpeta de trabajo a una carpeta llamada como el número de identificación del cálculo dentro de la carpeta desde la que se ha enviado el cálculo.
+            
+        \subsubsection{Como enviar el cálculo en local}
+            Si se tiene instalado Amber en local, se puede correr el cálculo de dos formas: o bien se envía cálculo a cálculo o bien se construye un \textit{script} en \texttt{BASH} que envíe automáticamente cada uno de los cálculos. \par 
+            El modo más cómodo si se tienen los cálculos de cada etapa fraccionados es con un \textit{script} sencillo como \textattachfile{script_pmemd.sh}{éste}, con en el que se puede enviar una dinámica completa, desde la minimización hasta la producción con todos los pasos, además de informar cuando acaba cada paso y del tiempo que ha necesitado. \par
+            Si lo que se desea es simplemente enviar paso por paso se debe utilizar, simplemente, el comando en el terminal
+            
+            
+            
+    \subsection{Creación de los archivos de configuración}
+        Los archivos de configuración de los cálculos de dinámica son archivos de texto plano con la extensión \texttt{.in}. En ellos pueden aparecer varias secciones según el tipo de cálculo que se lleve a cabo.
+        
+        \subsubsection{Cálculo de minimización MM}
+            La primera etapa de un cálculo de dinámica acostumbra a ser una minimización de la energía del sistema. Es usual ya que la estructura a estudiar proviene, normalmente, de una estructura cristalográfica que, además, se ha solvatado sin tener en cuenta la energía, de modo que el sistema se prevé que esté lejos de un mínimo energético. \par
+            \textsf{Para el cálculo de la dinámica de la pig12LOX con el DHA como ligando se ha llevado a cabo una minimización en tres etapas: en la primera se retenido la proteína (residuos 1 a 555) dejando las aguas libres\textattachfile{1min1in.txt}{\ (archivo)}, en la segunda se ha retenido el \textit{backbone} y se ha dejado las aguas y las cadenas laterales de los residuos libre \textattachfile{1min2in.txt}{\ (archivo)} y, finalmente, en la tercera se ha liberado todo el sistema\textattachfile{1min3in.txt}{\ (archivo)}. Todas las restricciones se han llevado a cabo con una fuerza de 5~\textit{$\frac{\text{kcal}}{\text{mol}\cdot\text{\AA}}$}. Para todas las minimizaciones se han realizado 15000 ciclos primero con el método \textit{steepest decent} y luego con el método \textit{conjugate gradient} para obtener resultados más precisos.}
+            
+        \subsubsection{Cálculo de \textit{heating}}
+            La segunda etapa de un cálculo de dinámica es el \textit{heating}. La estructura de la cual se parte es una estructura minimizada energéticamente teniendo en cuenta únicamente el potencial, de modo que no tiene en cuenta el efecto de la temperatura. Además, el \textit{heating} nos permitirá obtener unas primeras velocidades para cada átomo del sistema, a partir de las cuales se podrá correr las siguientes etapas.\par
+            \textsf{Para el cálculo de la dinámica de la pig12LOX con el DHA como ligando se ha llevado a cabo un \textit{heating} en una sola etapa de 200~\textit{ps} \textattachfile{2heat1in.txt}{\ (\texttt{.in} \textit{heating})}. Se ha calentado hasta 300~\textit{K} en 10 pasos de 30~\textit{K} cada uno, aplicando una restricción al \textit{backbone} de la proteína con una fuerza de 5~\textit{$\frac{\text{kcal}}{\text{mol}\cdot\text{\AA}}$}.}
+        
+        \subsubsection{Cálculo de equilibración de la densidad o equilibración NPT}
+            En esta tercera etapa se somete el sistema (cerrado) bajo el control de la presión y la temperatura, de modo que se logre una equilibración de la densidad del solvente (la proteína no se tiene en cuenta) y, por tanto, una representación fiel a la realidad. Además, la equilibración NPT corrige defectos en la caja de aguas como burbujas de vacío o esquinas cortadas. \par
+            \textsf{Para el cálculo de la dinámica de la pig12LOX con el DHA como ligando se han llevado a cabo 5 pasos, siendo los cuatro primeros de 50~\textit{ps} cada uno \textattachfile{3ntp1in.txt}{(\texttt{.in} \textit{eq. NPT, pasos 1-4})},y el último de 800~ps \textattachfile{3ntp5in.txt}{(\texttt{.in} \textit{eq. NPT, paso  5})}, obteniendo un total de 1~\textit{ns} para la etapa NPT. Se ha mantenido la restricción sobre el \textit{backbone}.}
+            \textsf{En este estudio, el \textit{heating} provocó la desaparición de cuatro aristas de la caja que fue solventada en los primeros pasos de esta etapa.}
+        
+        \subsubsection{Cálculo de la equilibración}
+            La cuarta etapa del cálculo de dinámica es una equilibración en condiciones NVT, es decir, del sistema cerrado a volumen y temperatura constantes. La finalidad de ésta etapa es dejar evolucionar el sistema durante un breve tiempo (un 10\% del tiempo total de la producción, la siguiente etapa) de modo que se logre una estabilización tanto de la proteína como del solvente.\par
+            La temperatura se mantiene constante durante el transcurso de la dinámica aplicando un termostato basado en las ecuaciones de la dinámica de Langevin, cuya principal ecuación es la siguiente:
+            $$ m_ia(t) = \frac{d v_i(t)}{d t} = F_i(x,t) - m_i\cdot\gamma(t)\cdot v_i(t) + R_i(t)$$
+            \noindent Donde $\gamma(t)$ es la frecuencia de colisión de las partículas y $R_i(t)$ es la fuerza estocástica. Debido a que la ecuación de Langevin se usa como únicamente termostato, $\gamma(t)$ debe ser pequeño (de $5~ps^{-1}$ como máximo), ya que si éste fuese demasiado grande se consideraría el efecto del solvente sobre la proteína por duplicado. El término $R_i(T)$ podrá no incluirse.\par
+            Gracias a la ecuación de Langevin se consigue regular la temperatura del sistema añadiendo una fuerza que regula las colisiones entre átomos en el sistema, de modo que la velocidad se mantenga bien repartida entre todo el sistema y, por lo tanto, lo hagan la energía cinética y la temperatura.\par
+            Por otro lado, $N$ y $V$ vienen definidos por el número de partículas (átomos o moléculas) y por el volumen de la caja de aguas, respectivamente. \par
+            
+            
+            \textsf{Para el cálculo de la dinámica de la pig12LOX con el DHA como ligando se ha llevado a cabo una equilibración en cinco etapas de 2~\textit{ns} cada una \textattachfile{4eq1in.txt}{(\texttt{.in} \textit{eq. NVT, pasos 1-5})}, obteniendo un total de 10~\textit{ns} para la equilibración NVT. Para esta etapa no se ha aplicado ninguna restricción al sistema. Para este cálculo se ha considerado una frecuencia de colisión de 3~\textit{ps}$^{-1}$.}
+            
+        \subsubsection{Cálculo de la producción}\label{sec:prodcalc}
+            La quinta y última etapa de la dinámica es la producción. Físicamente es idéntica a la etapa de equilibración. \par
+            \textsf{Para el cálculo de la dinámica de la pig12LOX con el DHA como ligando se ha llevado a cabo una producción de 100~\textit{ns} dividida en 20 etapas de 5~\textit{ns} cada una \textattachfile{5prod01in.txt}{(\texttt{.in} \textit{producción, pasos 1-20})}. Para este cálculo tampoco se ha impuesto ninguna restricción al sistema y se ha considerado una frecuencia de colisión de 3~\textit{ps}$^{-1}$.}
+            
+\section{Análisis de los resultados}
+    Una vez calculada la dinámica molecular y, por lo tanto, el o los archivos \texttt{.nc}, se deben analizar los resultados. Para ello se usará \texttt{cpptraj} y \texttt{mdout\_analysis.pl}, que están incluido en \textit{AmberTools16} y \textattachfile{main_program_v2.py.txt}{un script en \textit{python}}.
+    
+    \subsection{\texttt{Cpptraj}}
+        \texttt{cpptraj} es un programa incluido en el paquete \textit{AmberTools} que permite modificar y trabajar con archivos de topologías, coordenadas y trayectorias, entre otros. Gracias a \texttt{cpptraj} podremos, por ejemplo, unificar los distintos ficheros parciales que hemos generado para la etapa de la producción, de modo que podamos trabajar con un único fichero que contenga toda la producción. Además, permite calcular el RMSD a lo largo de la trayectoria, entre otras muchísimas funciones que se explican en el \href{http://ambermd.org/doc12/Amber17.pdf}{manual de \textit{Amber}}.
+        
+        \subsubsection{Unificación de las trayectorias parciales}
+            Para unificar todas la trayectorias parciales generadas por \texttt{pmemd.cuda} siguiendo la sección \ref{sec:prodcalc}, se puede utilitzar un \textattachfile{unificacionin.txt}{pequeño script} para \texttt{cpptraj}. Para correr el \textit{script}, se usa el comando siguiente:
+            \begin{center}
+                \texttt{cpptraj -p topology.prmtop -i unificacion.in}
+            \end{center}
+            
+            Gracias a este \textit{script} se generan dos ficheros: el \texttt{5\_prod\_total.nc} y el \texttt{5\_prod\_total\_autoimage.nc}. El primer fichero es simplemente la unión de los 20 pasos calculados en un solo fichero, mientras que el segundo fichero además centra la proteína y redefine la caja de aguas para el nuevo centro. Principalmente trabajaremos con el \texttt{5\_prod\_total\_autoimage.nc}, de forma que lo podamos visualizar asegurándonos que la proteína está en el centro de la caja.
+            
+        \subsubsection{Cálculo del RMSD}
+            
+        

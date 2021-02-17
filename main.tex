@@ -1,0 +1,189 @@
+\documentclass{book}
+
+%MÁRGENES, INTERLINEADO, PAGS HORITZONTALES
+\usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=2.5cm]{geometry}
+
+\renewcommand{\baselinestretch}{1.25}
+\usepackage{pdflscape}
+
+%To-Do list
+\usepackage{enumitem,amssymb}
+\newlist{todolist}{itemize}{2}
+\setlist[todolist]{label=$\square$}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\newcommand{\done}{\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\cmark}}%
+\hspace{-2.5pt}}
+\newcommand{\wontfix}{\rlap{$\square$}{\large\hspace{1pt}\xmark}}
+
+%OTROS
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+    \renewcommand{\tablename}{Tabla} 
+\def\ll{\discretionary{l-}{l}{\hbox{l$\cdot$l}}}
+\def\ser{\leavevmode\raise.585ex\hbox{\small er}}
+\newcommand{\grad}{\hspace{-2mm}$\phantom{a}^{\circ}$}
+%\addto{\captionscatalan}{\def\chaptername{Cap\'itol}}
+\usepackage[fencedCode,inlineFootnotes,citations,definitionLists,hashEnumerators,smartEllipses,hybrid]{markdown}
+%\usepackage{inconsolata}
+\usepackage{braket}
+\usepackage[hidelinks]{hyperref}
+\usepackage[justification=centering,font={small,sl},tableposition=top]{caption}
+\usepackage{attachfile}\attachfilesetup{color=0 0 1}%, print=True}
+\usepackage{changepage}
+
+%FIGURAS
+\usepackage{wrapfig}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+%\usepackage{floatrow}
+	%\floatsetup[table]{capposition=top}
+\usepackage{float}
+	%\newfloat{grafic}{t}{ext}[outer counter]
+\usepackage{subfig}
+
+%\usepackage{parskip}
+
+\usepackage{chemfig}
+\usepackage[version=3]{mhchem}
+
+%MATES
+%\usepackage{amssymb, amsmath, amsbsy}
+\usepackage{amsmath}  \numberwithin{equation}{section}
+%\usepackage{amstext}
+\usepackage{eqnarray}
+\usepackage{empheq}
+\usepackage{amssymb}
+\usepackage[e]{esvect} %vectors ( \vv )
+\usepackage{mathtools}
+\usepackage[nice]{units}
+
+%ABREVIATURAS
+\newcommand{\rx}{reacci\'o\ }
+\newcommand{\rxo}{reacci\'o,\ }
+\newcommand{\rxoo}{reacci\'o.\ }
+\newcommand{\rxs}{reaccions\ }
+\newcommand{\rxons}{reaccions,\ }
+\newcommand{\rxoons}{reaccions.\ }
+
+\newcommand{\gaussrate}{\textit{GaussRate}}
+\newcommand{\gaussian}{\textit{Gaussian}}
+\newcommand{\polyrate}{\textit{PolyRate}}
+
+\newcommand{\A}{\AA\ }
+\newcommand{\Aa}{\AA }
+
+\newcommand{\dg}{-\hspace{0cm}-}
+
+\usepackage{enumerate}
+%\usepackage{enumitem}
+%\usepackage{textcomp}
+
+%APPENDIX
+\usepackage[titletoc,toc,page]{appendix}
+\renewcommand{\appendixtocname}{Annexos}
+\renewcommand{\appendixpagename}{Annexos}
+\renewcommand{\appendixname}{Annex}
+
+%TABLAS
+\usepackage{longtable}
+%\usepackage{booktabs}
+\usepackage{tabu}
+\usepackage{multirow}
+\usepackage{multicol}
+
+
+%\usepackage{vmargin}
+%\setpapersize{A4}
+%\setmargins{3cm}
+
+%DIAGRAMAS y DIBUJOS
+\usepackage{tikz}
+\usepackage{pgfkeys}
+\usepackage{pgf}
+\usepackage{epsfig}
+\usepackage{pst-grad} % For gradients
+\usepackage{pst-plot} % For axes
+\usepackage[space]{grffile} % For spaces in paths
+\usepackage{etoolbox} % For spaces in paths
+\makeatletter % For spaces in paths
+\patchcmd\Gread@eps{\@inputcheck#1 }{\@inputcheck"#1"\relax}{}{}
+\makeatother
+%\usepackage[usenames,dvipsnames]{pstricks} 
+
+%BIBLIOGRAFIA
+%\usepackage[backend=biber,style=chem-acs]{biblatex}
+%\addbibresource{}
+
+%PORTADA, CABECERA y PIES
+\usepackage{pdfpages}
+%\usepackage{fancyhdr}
+	%\pagestyle{fancy}
+	%\fancypagestyle{cos}{
+		%\fancyhead[R]{\tiny{\textbf{Reaccions d'abstracció d'hidrogen del glicoaldehid amb OH:}\\ estudi cinètic i de l'efecte túnel mitjançant càlculs \textit{direct dynamics}}}
+	%	\lhead[]{}
+	%	\chead[]{}
+	%	\rhead[]{\scriptsize{\textbf{Reaccions d'abstracció d'hidrogen del glicoaldehid amb OH:}}\\ \tiny{estudi cinètic i avaluació de l'efecte túnel mitjançant càlculs \textit{direct dynamics}}}
+	%	\renewcommand{\headrulewidth}{0.5pt}
+		%\fancyfoot[R]{\thepage}
+	%	\lfoot[]{}
+	%	\cfoot[]{}
+	%	\rfoot[]{\thepage}
+	%	\renewcommand{\footrulewidth}{0pt}
+	%}
+	%\fancypagestyle{annexos}{
+%		\fancyfoot[RE]{\thepage}
+	%	\lhead[]{}
+	%	\chead[]{}
+	%	\rhead[]{}
+	%	\renewcommand{\headrulewidth}{0pt}		
+	%	\lfoot[]{}
+	%	\cfoot[]{}
+	%	\rfoot[]{\thepage}
+	%}
+%\newcommand{\setFooterR}[1]{
+%    \fancyfoot[R]{\thepage}
+%}
+%\newcommand{\setFooterC}[1]{
+%    \fancyfoot[C]{}
+%}
+
+
+%NIVEL NUMERACIONES
+\setcounter{secnumdepth}{4} %shows level of numbered sections
+\setcounter{tocdepth}{4} %shows all levels incl. subsubsection
+%\addto\captionscatalan{% Replace "english with the language you use
+%  \renewcommand{\contentsname}{\'Index}}
+\renewcommand{\thesubfigure}{\alph{subfigure}}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}} 
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
+
+
+%TITOL
+\title{Manuales}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\newpage
+\input{todolist.tex}
+\newpage
+\tableofcontents
+\newpage
+
+\input{docking.tex}
+\input{md.tex}
+
+
+
+
+
+
+
+
+\end{document}

@@ -1,0 +1,55 @@
+source leaprc.protein.ff14SB
+source leaprc.gaff
+addAtomTypes {
+	{ "M1" "Fe" "sp3" }
+        { "Y1" "N"  "sp3" } 
+        { "Y2" "N"  "sp3" }
+        { "Y3" "N"  "sp3" }
+        { "Y4" "N"  "sp3" }
+        { "Y5" "O"  "sp3" }
+        { "Y6" "O"  "sp3" }
+}
+addAtomTypes{
+        { "o"  "O"  "sp3" }
+        { "c2" "C"  "sp2" }
+        { "c3" "C"  "sp3" }
+        { "ha" "H"  "sp3" }
+        { "hb" "H"  "sp3" }
+}
+HD1 = loadmol2 HID250.mol2
+HD2 = loadmol2 HID255.mol2
+HD3 = loadmol2 HID430.mol2
+HE1 = loadmol2 HIE434.mol2
+IE1 = loadmol2 ILE552.mol2
+OH1 = loadmol2 OH.mol2
+FE2 = loadmol2 FE2.mol2
+HXA = loadmol2 HXA.mol2
+loadAmberParams OH.frcmod
+loadAmberParams frcmod.ionsjc_tip3p
+loadAmberParams centre_actiu.frcmod
+loadAmberParams HXA.frcmod 
+prot = loadPdb 20-II--1bis-3rde_A_HXA_millor_docking_final.pdb
+bond prot.250.NE2 prot.554.FE
+bond prot.255.NE2 prot.554.FE
+bond prot.430.NE2 prot.554.FE
+bond prot.434.ND1 prot.554.FE
+bond prot.552.OXT prot.554.FE
+bond prot.553.O1  prot.554.FE
+bond prot.249.C   prot.250.N
+bond prot.250.C   prot.251.N
+bond prot.254.C   prot.255.N
+bond prot.255.C   prot.256.N
+bond prot.429.C   prot.430.N
+bond prot.430.C   prot.431.N
+bond prot.433.C   prot.434.N
+bond prot.434.C   prot.435.N
+bond prot.551.C   prot.552.N   
+savePdb prot 20-II--1-3rde_A_HXA_tleap_dry.pdb
+saveAmberParm prot 20-II--1-3rde_A_HXA_tleap_dry.prmtop 20-II--1-3rde_A_HXA_tleap_dry.inpcrd
+source leaprc.water.tip3p
+solvateBox prot TIP3PBOX 10.0
+addIons prot Na+ 0 
+addIons prot Cl- 0
+savePdb prot 20-II--1-3rde_A_HXA_tleap_solvatat_ion.pdb
+saveAmberParm prot 20-II--1-3rde_A_HXA_tleap_solvatat_ion.prmtop 20-II--1-3rde_A_HXA_tleap_solvatat_ion.inpcrd
+quit

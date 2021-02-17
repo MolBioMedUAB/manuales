@@ -1,0 +1,41 @@
+\chapter{Docking}
+\newpage
+
+
+\section{Preparación de los ficheros}
+Para realizar un cálculo \textit{docking}, que permitirá estimar la colocación de un sustrato en una proteína, se deben tener dos ficheros: la proteína y el sustrato.\par
+Para realizar la preparación de la proteína se utilizará el software \texttt{UCSF Chimera}. De su entorno gráfico se utilizará principalmente la línia de comandos, que se puede activar en \texttt{Favorites >\ Command Line}, así como también un conjunto de herramientas preinstaladas en el propio \texttt{UCSF Chimera}.
+
+\subsection{La proteína}\label{preparacion_proteina}
+	Para preparar la proteína para un \textit{docking}, es necesario primero limpiarla de solvente e iones, eliminar el substrato con que se ha cristalizado la proteína i, finalmente protonarla, que se puede conseguir mediante dos procedimientos distintos, según se desee que la protonación dependa del pH o no.
+	
+	\subsubsection{Limpieza de la proteína}
+		El primer paso para preparar la proteína es limpiarla de solvente, iones y sustrato cristalográfico. Para ello, deben seguirse estos pasos:
+		\begin{enumerate}
+			\item \textbf{Eliminar el solvente:} \texttt{sel solvent}; \texttt{del sel}. \emph{Advertencia: en caso de tener una agua coordinada a un metal situado en el centro activo, se debe deseleccionar para no eliminarla. Con el comando \texttt{show sel} se pueden mostrar los elementos seleccionados y ver cual es el que se quiere deseleccionar}.
+			\item \textbf{Eliminar los iones:} \texttt{sel ions}; \texttt{del sel}. \emph{Advertencia: en caso de tener un ión en el centro activo, se debe deseleccionar para no eliminarlo}.
+			\item \textbf{Eliminar el ligando cristalográfico:}\texttt{sel ligand}; \texttt{del sel}.
+			\item \textbf{Desprotonar:} En caso que la proteína contenga H y se desee protonar en función del pH, se deben eliminar. \texttt{del element.H}
+		\end{enumerate}
+	
+	\subsection{Protonación de la proteína sin depender del pH}
+		Si se desea protonar la proteína sin tener en cuenta los protones, se debe usar la herramienta \texttt{Add H}, que se encuentra en \texttt{Tools >\ Sutructure Editing}.\par
+		
+\subsection{El ligando}\label{preparacion_ligando}
+	El Ligando debe estar libre de solvente y iones. En caso de no poder obtenerlo de una estructura cristalográfica de una proteína, el mismo debe ser obtenido a partir de su estructura canónica y ser optimizado. Para ello, el Sitio web Pub Chem ofrece la estructura canónica (canonical smiles), la cual debe ser copiada y optimizada en cimera. Para esto,en Chimera ir a Tools, Structure Editing, Build Structure. Seleccionar SMILES string y pegar la estructura canónica en SMILES string. Nombrar el residuo y luego Apply, y Close. Posteriormente, ingresar nuevamente a Tools, Structure Editing, Minimize Structure. Seleccionar Minimize y tildar Gasteiger. Al final se muestra la estructura minimizada. Guardar el file con extensión pdb.
+
+\section[AutoDock Vina]{AutoDock Vina \footnote{\href{http://www3.interscience.wiley.com/journal/122439542/abstract}{DOI: 10.1002/jcc.21334}}}
+
+
+Una vez que se tienen las estructuras del sustrato y del ligando, se puede realizar el autodock.Para tal fin, se deben seguir los siguientes pasos:
+    \begin{enumerate}
+        \item \textbf{Abrir las estructuras de ligando y proteína en extensión pdb.} \
+         \item \textbf{Programar el autodock vina.} Para esto ir a Tools, Surface/Bindign Analysis, Autodock vina. En dicho casillero uno debe nombrer el uotput file y seleccionar la estructura del receptor y el ligando. Posteriormente se debe tildar en Resize search volume using button, que posteriormente al tildar sobre la pantalla de las estructuras una caja donde se debe ajustar  aprentando con el scroll del mouse, sobre cada cara para ajustar a la posición donde uno quiere evaluar el sitio de interacción receptor-ligando. Luego se deben tildar en Receptor options y Ligando optios, las opciones requeridas. En Receptor options las únicas en opción true son Merge charges and remove non-polar hydrogens; Merge charges ando remove ione pairs y Ignore chians of non-standard residues. En Ligand options ambas opciones deben estar en true. En Advanced options indicar: Number of binding modes:10; Exhaustiveness of search: 8; Maximun energy difference: 3.\
+         \item\textbf{Efectuar el autodocking} Para esto indicar Apply y esperar que los resultados. Para evaluar el tiempo de procesamiento, ir a Tools, General Controls, Task Panel. Cuando termina el cálculo, solo en chimera se muestran los resultados.
+         \item\textbf{Resultados del autodocking} Los resultados son presentados en la ventana View Dock. Muestra los scores y los RMSD correspondientes. Los 10 clusters se muestran en el archivo con extensión pdbqt.
+    \end{enumerate}
+    
+		
+
+
+\newpage

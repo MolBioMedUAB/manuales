@@ -1,0 +1,15 @@
+Minimization without restrains
+
+&cntrl
+    imin=1,
+    maxcyc=5000,
+    ncyc=15000,
+    ntmin=1,
+    ntpr=1000,
+    cut=10.0,
+    irest=0,
+    ntx=1,
+    ntb=1,
+    ntr=0,
+    iwrap=1,
+&end

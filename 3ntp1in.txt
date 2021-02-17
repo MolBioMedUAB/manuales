@@ -1,0 +1,35 @@
+NPT equilibration
+
+&cntrl
+    imin=0,
+
+    irest=1,
+    ntx=5,
+    ntpr=1000,
+    ntwv=1000,
+    ntwe=1000,
+    ntwx=1000,
+    ntwr=1000,
+    iwrap=1,
+    ntf=2,   
+
+    cut=9,
+    ntc=2,
+    ntb=2,
+    ntr=1,
+
+    dt=0.002,
+    tol=0.000001,
+
+    ntp=1,
+    nstlim=25000,
+    ntt=1,
+    tautp=1.0,
+    taup=1,
+    temp0=300.0,
+    pres0=1.0,
+ 
+    ibelly=0,
+    restraintmask=':1-555@N,C,CA',
+    restraint_wt=5.0,
+&end

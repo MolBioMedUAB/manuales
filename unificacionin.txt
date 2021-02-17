@@ -1,0 +1,5 @@
+trajin 5_prod_**.nc
+trajout 5_prod_total.nc
+autoimage
+trajout 5_prod_total.nc
+quit
